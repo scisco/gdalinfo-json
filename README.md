@@ -37,4 +37,4 @@ console.log(JSON.stringify(gdalinfo('somefile.TIF')));
 ### Credit
 
 - [gdalinfo.js](https://github.com/naturalatlas/node-gdal/blob/master/examples/gdalinfo.js)
-- [goe-pixel-stream](https://github.com/mapbox/geo-pixel-stream)
+- [geo-pixel-stream](https://github.com/mapbox/geo-pixel-stream)
