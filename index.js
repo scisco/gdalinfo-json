@@ -1,3 +1,8 @@
+/*
+* Mostly copy/pasted from https://github.com/naturalatlas/node-gdal/blob/master/examples/gdalinfo.js
+*
+*/
+
 var gdal = require('gdal');
 var util = require('util');
 
