@@ -1,16 +1,18 @@
 /*
-* Mostly copy/pasted from https://github.com/naturalatlas/node-gdal/blob/master/examples/gdalinfo.js
+* The local part is mostly copy/pasted from https://github.com/naturalatlas/node-gdal/blob/master/examples/gdalinfo.js
 *
 */
 
 var gdal = require('gdal');
 var util = require('util');
+var child_process = require('child_process');
+var extend = require('extend')
 
-module.exports = function(filename) {
+module.exports.local = function(filename, callback) {
 
   if (!filename) {
-      console.error('Filename must be provided');
-      process.exit(1);
+    var err = new Error('Filename must be provided')
+      callback(err);
   }
 
   var ds = gdal.open(filename);
@@ -18,8 +20,8 @@ module.exports = function(filename) {
   var driver = ds.driver;
   var driver_metadata = driver.getMetadata();
   if (driver_metadata['DCAP_RASTER'] !== 'YES') {
-      console.error('Source file is not a raster');
-      process.exit(1);
+      var err = new Error('Source file is not a raster')
+      callback(err);
   }
 
   var geotransform = ds.geoTransform;
@@ -70,6 +72,61 @@ module.exports = function(filename) {
 
   });
 
-  return metadata
+  callback(err, metadata)
 };
 
+module.exports.remote = function(url, callback) {
+  child_process.exec('gdalinfo /vsicurl/' + url, function (err, stdout, stderr){
+    if (err) {
+      callback(err)
+    }
+    stdout = stdout.replace(/(\s)/g, '');
+    var metadata = {}
+
+    metadata.driver = getValue(stdout, 'Driver:(.*)Files:');
+    extend(metadata, getSize(stdout));
+    metadata.origin = getList(stdout, 'Origin=\\((.*)\\)PixelSize=');
+    metadata.pixel_size = getList(stdout, 'PixelSize=\\((.*)\\)Metadata:');
+    metadata.srs = getValue(stdout, 'CoordinateSystemis:(.*)Origin=');
+    metadata.corners = {
+      upper_left: getList(getValue(stdout, 'UpperLeft\\((.*)\\)LowerLeft'), '^(.*)\\)\\('),
+      lower_left: getList(getValue(stdout, 'LowerLeft\\((.*)\\)UpperRight'), '^(.*)\\)\\('),
+      upper_right: getList(getValue(stdout, 'UpperRight\\((.*)\\)LowerRight'), '^(.*)\\)\\('),
+      lower_right: getList(getValue(stdout, 'LowerRight\\((.*)\\)Center'), '^(.*)\\)\\('),
+      center: getList(getValue(stdout, 'Center\\((.*)\\)Band'), '^(.*)\\)\\('),
+    }
+
+    var bands = stdout.match(/Band(.)/g);
+    metadata.numBands = (bands ? bands.length : 0);
+
+    callback(err, metadata)
+  });
+};
+
+var getValue = function (value, re) {
+  var result = value.match(re);
+
+  if (result) {
+    return result[1];
+  }
+  else {
+    return null;
+  }
+}
+
+var getList = function (value, re) {
+  var list = getValue(value, re);
+
+  if (list) {
+    return list.split(',');
+  }
+}
+
+var getSize = function(value) {
+  var size = getValue(value, 'Sizeis(.*)CoordinateSystemis:');
+
+  if (size) {
+    size = size.split(',');
+    return {width: size[0], height: size[1]}
+  }
+}

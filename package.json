@@ -1,6 +1,6 @@
 {
   "name": "gdalinfo-json",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "gdalinfo output in json",
   "main": "index.js",
   "scripts": {
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/scisco/gdalinfo-json.git",
   "dependencies": {
+    "extend": "^2.0.1",
     "gdal": "^0.4.4"
   }
 }

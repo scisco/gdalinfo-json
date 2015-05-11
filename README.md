@@ -6,10 +6,31 @@ Returns standard gdalinfo output in json format.
 
 ### Usage
 
+To get gdalinfo from local files
+
 ```javascript
 var gdalinfo = require('gdalinfo-json');
 
-console.log(JSON.stringify(gdalinfo('somefile.TIF')));
+gdalinfo.local('somefile.TIF', function(err, metadata) {
+    if (err) {
+        console.log(err);
+    }
+    console.log(JSON.stringify(metadata));
+});
+
+```
+
+To get gdalinfo for remote file, you must have gdalinfo installed locally. Example:
+
+```javascript
+var gdalinfo = require('gdalinfo-json');
+
+gdalinfo.remote('http://example.com/somefile.TIF', function(err, metadata) {
+    if (err) {
+        console.log(err);
+    }
+    console.log(JSON.stringify(metadata));
+});
 
 ```
 
