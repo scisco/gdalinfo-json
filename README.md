@@ -38,6 +38,7 @@ gdalinfo.remote('http://example.com/somefile.TIF', function(err, metadata) {
 
 ```json
 {
+    "filename": "somefile.TIF",
     "driver": "GTiff",
     "width": 8831,
     "height": 8871,

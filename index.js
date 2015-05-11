@@ -28,6 +28,7 @@ module.exports.local = function(filename, callback) {
   var size = ds.rasterSize;
 
   var metadata = {
+    filename: filename
     driver: ds.driver.description,
     width: size.x,
     height: size.y,
@@ -83,6 +84,7 @@ module.exports.remote = function(url, callback) {
     stdout = stdout.replace(/(\s)/g, '');
     var metadata = {}
 
+    metadata.url = url;
     metadata.driver = getValue(stdout, 'Driver:(.*)Files:');
     extend(metadata, getSize(stdout));
     metadata.origin = getList(stdout, 'Origin=\\((.*)\\)PixelSize=');
