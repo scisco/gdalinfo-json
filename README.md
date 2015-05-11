@@ -2,6 +2,8 @@
 
 Returns standard gdalinfo output in json format.
 
+    npm install gdalinfo-json
+
 ### Usage
 
 ```javascript
