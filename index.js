@@ -28,7 +28,7 @@ module.exports.local = function(filename, callback) {
   var size = ds.rasterSize;
 
   var metadata = {
-    filename: filename
+    filename: filename,
     driver: ds.driver.description,
     width: size.x,
     height: size.y,
