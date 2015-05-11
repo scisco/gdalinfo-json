@@ -104,7 +104,8 @@ module.exports.remote = function(url, callback) {
 };
 
 var getValue = function (value, re) {
-  if (result)
+  var result;
+  if (value)
     var result = value.match(re);
 
   if (result) {
