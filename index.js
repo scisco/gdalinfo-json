@@ -16,13 +16,20 @@ module.exports.local = function(filename, callback) {
       callback(err);
   }
 
-  var ds = gdal.open(filename);
+  try {
+    var ds = gdal.open(filename);
+  }
+  catch (err) {
+    callback(err);
+    return;
+  }
 
   var driver = ds.driver;
   var driver_metadata = driver.getMetadata();
   if (driver_metadata['DCAP_RASTER'] !== 'YES') {
       var err = new Error('Source file is not a raster')
       callback(err);
+      return;
   }
 
   var geotransform = ds.geoTransform;
