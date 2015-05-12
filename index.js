@@ -7,6 +7,7 @@ var gdal = require('gdal');
 var util = require('util');
 var child_process = require('child_process');
 var extend = require('extend')
+var geo = require('mt-geo');
 
 module.exports.local = function(filename, callback) {
 
@@ -37,7 +38,8 @@ module.exports.local = function(filename, callback) {
     geotransform: ds.geoTransform,
     origin: [geotransform[0], geotransform[3]],
     pixel_size: [geotransform[1], geotransform[5]],
-    corners: {}
+    corners: {},
+    corners_lon_lat: {}
   };
   // corners
   var corners = {
@@ -46,6 +48,14 @@ module.exports.local = function(filename, callback) {
       'bottom_right' : {x: size.x, y: size.y},
       'bottom_left' : {x: 0, y: size.y},
       'center' : {x: size.x/2, y: size.y/2}
+  };
+
+  var corners_lon_lat = {
+      'upper_left' : null,
+      'upper_right' : null,
+      'bottom_right' : null,
+      'bottom_left' : null,
+      'center' : null,
   };
 
   var wgs84 = gdal.SpatialReference.fromEPSG(4326);
@@ -70,7 +80,7 @@ module.exports.local = function(filename, callback) {
       );
 
       metadata.corners[corner_name] = [Math.floor(pt_orig.x * 100) / 100, Math.floor(pt_orig.y * 100) / 100]
-
+      metadata.corners_lon_lat[corner_name] = [pt_wgs84.x, pt_wgs84.y]
   });
 
   callback(err, metadata)
@@ -96,13 +106,28 @@ module.exports.remote = function(url, callback) {
       upper_right: getList(getValue(stdout, 'UpperRight\\((.*)\\)LowerRight'), '^(.*)\\)\\('),
       lower_right: getList(getValue(stdout, 'LowerRight\\((.*)\\)Center'), '^(.*)\\)\\('),
       center: getList(getValue(stdout, 'Center\\((.*)\\)Band'), '^(.*)\\)\\('),
-    }
+    };
+
+    metadata.corners_lon_lat = {
+      upper_left: dms(getList(getValue(stdout, 'UpperLeft\\((.*)\\)LowerLeft'), '\\)\\((.*)')),
+      lower_left: dms(getList(getValue(stdout, 'LowerLeft\\((.*)\\)UpperRight'), '\\)\\((.*)')),
+      upper_right: dms(getList(getValue(stdout, 'UpperRight\\((.*)\\)LowerRight'), '\\)\\((.*)')),
+      lower_right: dms(getList(getValue(stdout, 'LowerRight\\((.*)\\)Center'), '\\)\\((.*)')),
+      center: dms(getList(getValue(stdout, 'Center\\((.*)\\)Band'), '\\)\\((.*)')),
+    };
 
     var bands = stdout.match(/Band(.)/g);
     metadata.numBands = (bands ? bands.length : 0);
 
     callback(err, metadata)
   });
+};
+
+var dms = function(value) {
+  for (i=0; i < value.length; i++) {
+    value[i] = geo.parseDMS(value[i]);
+  }
+  return value
 };
 
 var getValue = function (value, re) {
