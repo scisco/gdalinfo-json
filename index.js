@@ -45,16 +45,16 @@ module.exports.local = function(filename, callback) {
   var corners = {
       'upper_left' : {x: 0, y: 0},
       'upper_right' : {x: size.x, y: 0},
-      'bottom_right' : {x: size.x, y: size.y},
-      'bottom_left' : {x: 0, y: size.y},
+      'lower_right' : {x: size.x, y: size.y},
+      'lower_left' : {x: 0, y: size.y},
       'center' : {x: size.x/2, y: size.y/2}
   };
 
   var corners_lon_lat = {
       'upper_left' : null,
       'upper_right' : null,
-      'bottom_right' : null,
-      'bottom_left' : null,
+      'lower_right' : null,
+      'lower_left' : null,
       'center' : null,
   };
 
@@ -97,15 +97,15 @@ module.exports.remote = function(url, callback) {
     metadata.url = url;
     metadata.driver = getValue(stdout, 'Driver:(.*)Files:');
     extend(metadata, getSize(stdout));
-    metadata.origin = getList(stdout, 'Origin=\\((.*)\\)PixelSize=');
-    metadata.pixel_size = getList(stdout, 'PixelSize=\\((.*)\\)Metadata:');
+    metadata.origin = getList(stdout, 'Origin=\\((.*)\\)PixelSize=').map(parseFloat);
+    metadata.pixel_size = getList(stdout, 'PixelSize=\\((.*)\\)Metadata:').map(parseFloat);
     metadata.srs = getValue(stdout, 'CoordinateSystemis:(.*)Origin=');
     metadata.corners = {
-      upper_left: getList(getValue(stdout, 'UpperLeft\\((.*)\\)LowerLeft'), '^(.*)\\)\\('),
-      lower_left: getList(getValue(stdout, 'LowerLeft\\((.*)\\)UpperRight'), '^(.*)\\)\\('),
-      upper_right: getList(getValue(stdout, 'UpperRight\\((.*)\\)LowerRight'), '^(.*)\\)\\('),
-      lower_right: getList(getValue(stdout, 'LowerRight\\((.*)\\)Center'), '^(.*)\\)\\('),
-      center: getList(getValue(stdout, 'Center\\((.*)\\)Band'), '^(.*)\\)\\('),
+      upper_left: getList(getValue(stdout, 'UpperLeft\\((.*)\\)LowerLeft'), '^(.*)\\)\\(').map(parseFloat),
+      lower_left: getList(getValue(stdout, 'LowerLeft\\((.*)\\)UpperRight'), '^(.*)\\)\\(').map(parseFloat),
+      upper_right: getList(getValue(stdout, 'UpperRight\\((.*)\\)LowerRight'), '^(.*)\\)\\(').map(parseFloat),
+      lower_right: getList(getValue(stdout, 'LowerRight\\((.*)\\)Center'), '^(.*)\\)\\(').map(parseFloat),
+      center: getList(getValue(stdout, 'Center\\((.*)\\)Band'), '^(.*)\\)\\(').map(parseFloat),
     };
 
     metadata.corners_lon_lat = {
@@ -156,6 +156,6 @@ var getSize = function(value) {
 
   if (size) {
     size = size.split(',');
-    return {width: size[0], height: size[1]}
+    return {width: parseFloat(size[0]), height: parseFloat(size[1])}
   }
 }
