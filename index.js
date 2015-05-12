@@ -16,6 +16,7 @@ module.exports.local = function(filename, callback) {
   if (!filename) {
     err = new Error('Filename must be provided');
     callback(err);
+    return;
   }
 
   var ds;
