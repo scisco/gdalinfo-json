@@ -1,5 +1,7 @@
 ### gdalinfo-json
 
+[![npm version](https://badge.fury.io/js/gdalinfo-json.svg)](http://badge.fury.io/js/gdalinfo-json)
+
 Returns standard gdalinfo output in json format.
 
     npm install gdalinfo-json
