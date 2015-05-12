@@ -1,23 +1,27 @@
+'use strict';
 /*
 * The local part is mostly copy/pasted from https://github.com/naturalatlas/node-gdal/blob/master/examples/gdalinfo.js
 *
 */
 
 var gdal = require('gdal');
-var util = require('util');
 var child_process = require('child_process');
-var extend = require('extend')
+var extend = require('extend');
 var geo = require('mt-geo');
 
 module.exports.local = function(filename, callback) {
 
+  var err;
+
   if (!filename) {
-    var err = new Error('Filename must be provided')
-      callback(err);
+    err = new Error('Filename must be provided');
+    callback(err);
   }
 
+  var ds;
+
   try {
-    var ds = gdal.open(filename);
+    ds = gdal.open(filename);
   }
   catch (err) {
     callback(err);
@@ -26,8 +30,8 @@ module.exports.local = function(filename, callback) {
 
   var driver = ds.driver;
   var driver_metadata = driver.getMetadata();
-  if (driver_metadata['DCAP_RASTER'] !== 'YES') {
-      var err = new Error('Source file is not a raster')
+  if (driver_metadata.DCAP_RASTER !== 'YES') {
+      err = new Error('Source file is not a raster');
       callback(err);
       return;
   }
@@ -57,14 +61,6 @@ module.exports.local = function(filename, callback) {
       'center' : {x: size.x/2, y: size.y/2}
   };
 
-  var corners_lon_lat = {
-      'upper_left' : null,
-      'upper_right' : null,
-      'lower_right' : null,
-      'lower_left' : null,
-      'center' : null,
-  };
-
   var wgs84 = gdal.SpatialReference.fromEPSG(4326);
   var coord_transform = new gdal.CoordinateTransformation(ds.srs, wgs84);
 
@@ -76,30 +72,24 @@ module.exports.local = function(filename, callback) {
       var pt_orig     = {
           x: geotransform[0] + corner.x * geotransform[1] + corner.y * geotransform[2],
           y: geotransform[3] + corner.x * geotransform[4] + corner.y * geotransform[5]
-      }
+      };
       var pt_wgs84    = coord_transform.transformPoint(pt_orig);
-      var description = util.format('%s (%d, %d) (%s, %s)',
-          corner_name,
-          Math.floor(pt_orig.x * 100) / 100,
-          Math.floor(pt_orig.y * 100) / 100,
-          gdal.decToDMS(pt_wgs84.x, 'Long'),
-          gdal.decToDMS(pt_wgs84.y, 'Lat')
-      );
 
-      metadata.corners[corner_name] = [Math.floor(pt_orig.x * 100) / 100, Math.floor(pt_orig.y * 100) / 100]
-      metadata.corners_lon_lat[corner_name] = [pt_wgs84.x, pt_wgs84.y]
+      metadata.corners[corner_name] = [Math.floor(pt_orig.x * 100) / 100, Math.floor(pt_orig.y * 100) / 100];
+      metadata.corners_lon_lat[corner_name] = [pt_wgs84.x, pt_wgs84.y];
   });
 
-  callback(err, metadata)
+  callback(err, metadata);
 };
 
 module.exports.remote = function(url, callback) {
-  child_process.exec('gdalinfo /vsicurl/' + url, function (err, stdout, stderr){
+  child_process.exec('gdalinfo /vsicurl/' + url, function (err, stdout){
     if (err) {
-      callback(err)
+      callback(err);
+      return;
     }
     stdout = stdout.replace(/(\s)/g, '');
-    var metadata = {}
+    var metadata = {};
 
     metadata.url = url;
     metadata.driver = getValue(stdout, 'Driver:(.*)Files:');
@@ -126,21 +116,22 @@ module.exports.remote = function(url, callback) {
     var bands = stdout.match(/Band(.)/g);
     metadata.numBands = (bands ? bands.length : 0);
 
-    callback(err, metadata)
+    callback(err, metadata);
   });
 };
 
 var dms = function(value) {
-  for (i=0; i < value.length; i++) {
+  for (var i = 0; i < value.length; i++) {
     value[i] = geo.parseDMS(value[i]);
   }
-  return value
+  return value;
 };
 
 var getValue = function (value, re) {
   var result;
-  if (value)
-    var result = value.match(re);
+  if (value) {
+    result = value.match(re);
+  }
 
   if (result) {
     return result[1];
@@ -148,7 +139,7 @@ var getValue = function (value, re) {
   else {
     return null;
   }
-}
+};
 
 var getList = function (value, re) {
   var list = getValue(value, re);
@@ -156,13 +147,13 @@ var getList = function (value, re) {
   if (list) {
     return list.split(',');
   }
-}
+};
 
 var getSize = function(value) {
   var size = getValue(value, 'Sizeis(.*)CoordinateSystemis:');
 
   if (size) {
     size = size.split(',');
-    return {width: parseFloat(size[0]), height: parseFloat(size[1])}
+    return {width: parseFloat(size[0]), height: parseFloat(size[1])};
   }
-}
+};
