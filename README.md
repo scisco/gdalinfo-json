@@ -36,6 +36,13 @@ gdalinfo.remote('http://example.com/somefile.TIF', function(err, metadata) {
 
 ```
 
+#### From Command Line
+
+```bash
+npm install -g gdalinfo-json
+gdalinfo-json somefile.TIF
+```
+
 ### Example output
 
 ```json
