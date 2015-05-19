@@ -68,7 +68,7 @@ module.exports.local = function(filename, callback) {
   };
 
   var wgs84 = gdal.SpatialReference.fromEPSG(4326);
-  var coord_transform = new gdal.CoordinateTransformation(ds.srs, wgs84);
+  var coord_transform = new gdal.CoordinateTransformation(ds.srs || wgs84, wgs84);
 
   var corner_names = Object.keys(corners);
   corner_names.forEach(function(corner_name) {
