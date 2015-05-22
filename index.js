@@ -39,14 +39,19 @@ module.exports.local = function(filename, callback) {
 
   var geotransform = ds.geoTransform;
   var size = ds.rasterSize;
+  var description = (ds.driver || {}).description;
+  var numBands = (ds.bands && typeof ds.bands.count === 'function') ?
+    ds.bands.count() : null;
+  var srs = (ds.srs && typeof ds.srs.toWKT === 'function') ?
+    ds.srs.toWKT() : null;
 
   var metadata = {
     filename: filename,
-    driver: ds.driver.description,
+    driver: description,
     width: size.x,
     height: size.y,
-    numBands: ds.bands.count(),
-    srs: ds.srs.toWKT(),
+    numBands: numBands,
+    srs: srs,
     geotransform: ds.geoTransform,
     origin: [geotransform[0], geotransform[3]],
     pixel_size: [geotransform[1], geotransform[5]],
@@ -63,7 +68,7 @@ module.exports.local = function(filename, callback) {
   };
 
   var wgs84 = gdal.SpatialReference.fromEPSG(4326);
-  var coord_transform = new gdal.CoordinateTransformation(ds.srs, wgs84);
+  var coord_transform = new gdal.CoordinateTransformation(ds.srs || wgs84, wgs84);
 
   var corner_names = Object.keys(corners);
   corner_names.forEach(function(corner_name) {
