@@ -1,7 +1,7 @@
 ### gdalinfo-json
 
 [![npm version](https://badge.fury.io/js/gdalinfo-json.svg)](http://badge.fury.io/js/gdalinfo-json)
-![tavis](https://travis-ci.org/scisco/gdalinfo-json.svg?branch=master)
+[![Build Status](https://travis-ci.org/scisco/gdalinfo-json.svg?branch=master)](https://travis-ci.org/scisco/gdalinfo-json)
 
 Returns standard gdalinfo output in json format.
 
