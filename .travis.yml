@@ -1,14 +1,29 @@
 language: node_js
+
 node_js:
-  - "0.12"
+- '0.12'
+
+branches:
+  only:
+    - master
+    - develop
 
 services:
-  - mongodb
+- mongodb
 
 before_install:
-  - sudo add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable
-  - sudo apt-get update -y
-  - sudo apt-get install gdal-bin libgdal-dev
+- sudo add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable
+- sudo apt-get update -y
+- sudo apt-get install gdal-bin libgdal-dev
 
 script:
-  - npm test
+- npm test
+
+deploy:
+  provider: npm
+  email: scisco7@gmail.com
+  api_key:
+    secure: C6RHYk9XJNlbTNmxfjKDNT/DyvNJRXje+IfiNYyH+e34YkWLV8NzBY0wSOwAVwCmDmDpzCnLS+Z959bv3JGP8pZGneadP+igmuJ0SOhazb/OzdQcgsam0uIvIICMmaNupil3agjpV6Jzs3hec5HrNvzFdFWx639vDICyhXdyHr4KFUj48jUol3gHvjgeVNOp7HzCQ0W/BXBx2y7HWcZPlsMNft3NyU3Wu9Rcaz2KxcTnEMuTibj0qEp5L76QHtbkiGFmUtX46j6p7KEY/djHt5mwwztUR2Sqp9kPgn9ffAwlfTrpHDv4ag2orwxkLJjvSjbC56fQ5vq3a9ri1aSWcpqoAvcPmNP3AeP688IRPmp9nQud5q/fd2Mk0XsvGl+VJZ7WoS5Kho2vwiM2l1NsUFTNtiQBtGGrdEr/qu83pyOzYpU9FSCrbJendUJecaVNHIh8XvMpMU6dMTsCxkEyjQEGF4SzF9tBEumdkV2+DiZxuOzBvVjF4ELz79ktCLn1Vl8dQqrQq5L0IZIk7IcALBKaV0yzmuPYi5l5Zgrm+ILHPeMTwXuU0ImK9jB7XBxt/9gB/VDFwJKLXV6xYOkVJf2omHxjnkx9+5TSnHcE5CJb5vhYcakCxWa5BtwR5kSZ9VlSbdOQmm/qCf79cMrscY+G23E0WMkFkfB6+Tn4agI=
+  on:
+    tags: true
+    repo: scisco/gdalinfo-json
