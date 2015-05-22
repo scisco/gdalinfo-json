@@ -1,6 +1,6 @@
 {
   "name": "gdalinfo-json",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "gdalinfo output in json",
   "main": "index.js",
   "bin": "cli.js",
