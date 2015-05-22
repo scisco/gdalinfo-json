@@ -83,3 +83,4 @@ gdalinfo-json somefile.TIF
 
 - [gdalinfo.js](https://github.com/naturalatlas/node-gdal/blob/master/examples/gdalinfo.js)
 - [geo-pixel-stream](https://github.com/mapbox/geo-pixel-stream)
+
